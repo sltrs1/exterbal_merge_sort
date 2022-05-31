@@ -198,13 +198,11 @@ size_t merge(size_t max_str_len, size_t * file_counter)
         num_done += 2;
         *file_counter += 1;
         to_do = *file_counter - num_done;
-        int tmp1 = fclose(F1);
-        int tmp2 = fclose(F2);
+        if ( fclose(F1) == EOF ) perror("fclose(F1) error\n");
+        if ( fclose(F2) == EOF ) perror("fclose(F1) error\n");
         fclose(G);
         remove(file_to_merge1);
         remove(file_to_merge2);
-        memset(file_to_merge1, 0, sizeof(char)*20);
-        memset(file_to_merge2, 0, sizeof(char)*20);
     }
 
     free(buf1);
