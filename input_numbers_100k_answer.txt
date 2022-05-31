@@ -1,0 +1,16 @@
+TOP 10 most frequent words in input_numbers_100k.txt
+N 1 - 25 - 7633
+N 2 - 22 - 5958
+N 3 - 22 - 8527
+N 4 - 21 - 602
+N 5 - 21 - 1155
+N 6 - 21 - 4013
+N 7 - 21 - 4620
+N 8 - 21 - 5736
+N 9 - 21 - 6155
+N10 - 21 - 7028
+N11 - 21 - 8736
+N12 - 21 - 9343
+N13 - 21 - 9683
+--
+Note that there is more than 10 words, so 4th-10th places may be any of N4-N13
