@@ -1,6 +1,7 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+#include "defines.h"
 #include <stddef.h>
 #include <stdio.h>
 #include <errno.h>

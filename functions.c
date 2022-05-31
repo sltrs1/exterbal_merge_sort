@@ -39,7 +39,7 @@ size_t get_next(FILE * F, char ** buf, size_t buf_size, size_t max_str_len, size
     size_t j = 0;
     size_t num_read = 0;
     FILE * G = NULL;
-    char filename[20];
+    char filename[FILENAME_LEN];
 
     for (i = 0; i < buf_size; i++)
     {
@@ -112,11 +112,9 @@ size_t merge(size_t max_str_len, size_t * file_counter)
     FILE * F1 = NULL;
     FILE * F2 = NULL;
     FILE * G = NULL;
-    char file_to_merge1[20];
-    char file_to_merge2[20];
-    char next_file[20];
-    char err_line[30];
-
+    char file_to_merge1[FILENAME_LEN];
+    char file_to_merge2[FILENAME_LEN];
+    char next_file[FILENAME_LEN];
     char * read_result1 = NULL;
     char * read_result2 = NULL;
 
@@ -127,7 +125,7 @@ size_t merge(size_t max_str_len, size_t * file_counter)
     memset(buf2, 0, (sizeof(char)*max_str_len));
     memset(file_to_merge1, 0, sizeof(char)*20);
     memset(file_to_merge2, 0, sizeof(char)*20);
-    memset(err_line, 0, sizeof(char)*20);
+    memset(next_file, 0, sizeof(char)*20);
 
     // Еси есть только один файл, то слияние выполнять не над чем
     if (*file_counter == 1)
@@ -144,7 +142,6 @@ size_t merge(size_t max_str_len, size_t * file_counter)
         sprintf(file_to_merge2, "%u.txt", num_done + 1);
         sprintf(next_file, "%u.txt", *file_counter);
         F1 = fopen(file_to_merge1, "r");
-        sprintf(err_line, "errno = %i, ferror = %i\n", errno, ferror(F1));
         if (F1 == NULL)
         {
             perror("F1 is NULL\n");
@@ -225,16 +222,16 @@ size_t find_top_n(char ** buf, size_t top_n, size_t max_str_len, size_t * file_c
         return 1;
     }
 
-    char filename[20];
+    char filename[FILENAME_LEN];
     char * curr_str = (char*)malloc(sizeof(char)*max_str_len);
     char * next_str = (char*)malloc(sizeof(char)*max_str_len);
+    char * read_result = NULL;
     size_t curr_cnt = 0;
     size_t next_cnt = 0;
     size_t idx = 0;
     size_t i = 0;
-    size_t * cnt = (size_t*)malloc(sizeof(size_t)*max_str_len);
+    size_t * cnt = (size_t*)malloc(sizeof(size_t)*top_n);
     FILE * F = NULL;
-    char * read_result = NULL;
 
     sprintf(filename, "%u.txt", ((*file_counter)-1));
     F = fopen(filename, "r");
