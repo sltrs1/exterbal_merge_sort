@@ -26,5 +26,10 @@ size_t find_top_n(char ** buf, size_t top_n, size_t max_str_len, size_t * file_c
 // Ищет счетчик с наименьшим значением
 size_t find_min(size_t * cnt, size_t size);
 
+// Сортировка буфера
+void sort_buf(char ** buf, size_t * cnt, size_t buf_size);
+
+// Смена местами элементов буфера и их счетчиков
+void swap_buffer_elements(char ** str1_ptr, char ** str2_ptr, size_t * x, size_t * y);
 
 #endif // FUNCTIONS_H

@@ -7,7 +7,6 @@ void remove_nl(char * str)
 {
     if (str == NULL)
     {
-        perror("remove_eol: Invalid parameters\n");
         return;
     }
 
@@ -223,7 +222,7 @@ size_t find_top_n(char ** buf, size_t top_n, size_t max_str_len, size_t * file_c
     if (buf == NULL || top_n == 0 || max_str_len == 0 || *file_counter == 0)
     {
         perror("find_top_n: Invalid parameters\n");
-        return 0;
+        return 1;
     }
 
     char filename[20];
@@ -242,10 +241,6 @@ size_t find_top_n(char ** buf, size_t top_n, size_t max_str_len, size_t * file_c
     memset(cnt, 0, sizeof(size_t)*top_n);
     memset(curr_str, 0, sizeof(char)*max_str_len);
     memset(next_str, 0, sizeof(char)*max_str_len);
-
-
-
-
 
     read_result = fgets(next_str, max_str_len, F);
     remove_nl(next_str);
@@ -279,6 +274,8 @@ size_t find_top_n(char ** buf, size_t top_n, size_t max_str_len, size_t * file_c
         next_cnt = 1;
     }
 
+    sort_buf(buf, cnt, top_n);
+
     for (i = 0; i < top_n; i++)
     {
         printf("%2i - %s - %2i\n", i, buf[i], cnt[i]);
@@ -287,7 +284,8 @@ size_t find_top_n(char ** buf, size_t top_n, size_t max_str_len, size_t * file_c
     free(cnt);
     free(curr_str);
     fclose(F);
-    return 1;
+    remove(filename);
+    return 0;
 }
 
 //****************************************************************************
@@ -314,6 +312,49 @@ size_t find_min(size_t * cnt, size_t size)
         }
     }
     return idx;
+}
+
+//****************************************************************************
+//****************************************************************************
+
+void sort_buf(char ** buf, size_t * cnt, size_t buf_size)
+{
+    if (buf == NULL || cnt == NULL || buf_size == 0)
+    {
+        perror("sort_buf: Invalid parameters\n");
+        return;
+    }
+
+    size_t i = 0;
+    size_t j = 0;
+
+    // Размер буфера небольшой, так что можно и пузырьком
+    for (i = 0; i < buf_size; i++)
+    {
+        for (j = buf_size - 1; j > i; j--)
+        {
+            if (cnt[j-1] < cnt[j])
+            {
+                swap_buffer_elements(&buf[j-1], &buf[j], &cnt[j-1], &cnt[j]);
+            }
+        }
+    }
+
+    return;
+}
+
+//****************************************************************************
+//****************************************************************************
+
+void swap_buffer_elements(char ** str1_ptr, char ** str2_ptr, size_t * x, size_t * y)
+{
+    char * tmp = *str1_ptr;
+    *str1_ptr = *str2_ptr;
+    *str2_ptr = tmp;
+
+    *x = *x + *y;
+    *y = *x - *y;
+    *x = *x - *y;
 }
 
 //****************************************************************************
