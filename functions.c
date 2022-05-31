@@ -118,9 +118,14 @@ size_t merge(size_t max_str_len, size_t * file_counter)
     char next_file[20];
     char err_line[30];
 
+    char * read_result1 = NULL;
+    char * read_result2 = NULL;
+
     // Для хранения строк
     char * buf1 = (char*)malloc(sizeof(char)*max_str_len);
     char * buf2 = (char*)malloc(sizeof(char)*max_str_len);
+    memset(buf1, 0, (sizeof(char)*max_str_len));
+    memset(buf2, 0, (sizeof(char)*max_str_len));
     memset(file_to_merge1, 0, sizeof(char)*20);
     memset(file_to_merge2, 0, sizeof(char)*20);
     memset(err_line, 0, sizeof(char)*20);
@@ -148,47 +153,47 @@ size_t merge(size_t max_str_len, size_t * file_counter)
         F2 = fopen(file_to_merge2, "r");
         G = fopen(next_file, "w");
 
-        buf1 = fgets(buf1, max_str_len, F1);
+        read_result1 = fgets(buf1, max_str_len, F1);
         remove_nl(buf1);
-        buf2 = fgets(buf2, max_str_len, F2);
+        read_result2 = fgets(buf2, max_str_len, F2);
         remove_nl(buf2);
 
         // Сравниваем строки и записываем в файл наименьшую,
         // пока не кончится один из файлов
-        while ( buf1 != NULL && buf2 != NULL )
+        while ( read_result1 != NULL && read_result2 != NULL )
         {
             if( strcmp(buf1, buf2) < 0 )
             {
                 fprintf(G, "%s\n", buf1);
-                buf1 = fgets(buf1, max_str_len, F1);
+                read_result1 = fgets(buf1, max_str_len, F1);
                 remove_nl(buf1);
 
             }
             else
             {
                 fprintf(G, "%s\n", buf2);
-                buf2 = fgets(buf2, max_str_len, F2);
+                read_result2 = fgets(buf2, max_str_len, F2);
                 remove_nl(buf2);
             }
         }
 
         //Проверяем, какой файл кончился и записываем остатки другого
-        if (buf1 == NULL && buf2 != NULL)
+        if (read_result1 == NULL && read_result2 != NULL)
         {
-            while(buf2 != NULL)
+            while(read_result2 != NULL)
             {
                 fprintf(G, "%s\n", buf2);
-                buf2 = fgets(buf2, max_str_len, F2);
+                read_result2 = fgets(buf2, max_str_len, F2);
                 remove_nl(buf2);
             }
         }
 
-        if (buf1 != NULL && buf2 == NULL)
+        if (read_result1 != NULL && read_result2 == NULL)
         {
-            while(buf1 != NULL)
+            while(read_result1 != NULL)
             {
                 fprintf(G, "%s\n", buf1);
-                buf1 = fgets(buf1, max_str_len, F1);
+                read_result1 = fgets(buf1, max_str_len, F1);
                 remove_nl(buf1);
             }
         }
@@ -198,8 +203,8 @@ size_t merge(size_t max_str_len, size_t * file_counter)
         num_done += 2;
         *file_counter += 1;
         to_do = *file_counter - num_done;
-        if ( fclose(F1) == EOF ) perror("fclose(F1) error\n");
-        if ( fclose(F2) == EOF ) perror("fclose(F1) error\n");
+        fclose(F1);
+        fclose(F2);
         fclose(G);
         remove(file_to_merge1);
         remove(file_to_merge2);
@@ -213,6 +218,103 @@ size_t merge(size_t max_str_len, size_t * file_counter)
 //****************************************************************************
 //****************************************************************************
 
+size_t find_top_n(char ** buf, size_t top_n, size_t max_str_len, size_t * file_counter)
+{
+    if (buf == NULL || top_n == 0 || max_str_len == 0 || *file_counter == 0)
+    {
+        perror("find_top_n: Invalid parameters\n");
+        return 0;
+    }
+
+    char filename[20];
+    char * curr_str = (char*)malloc(sizeof(char)*max_str_len);
+    char * next_str = (char*)malloc(sizeof(char)*max_str_len);
+    size_t curr_cnt = 0;
+    size_t next_cnt = 0;
+    size_t idx = 0;
+    size_t i = 0;
+    size_t * cnt = (size_t*)malloc(sizeof(size_t)*max_str_len);
+    FILE * F = NULL;
+    char * read_result = NULL;
+
+    sprintf(filename, "%u.txt", ((*file_counter)-1));
+    F = fopen(filename, "r");
+    memset(cnt, 0, sizeof(size_t)*top_n);
+    memset(curr_str, 0, sizeof(char)*max_str_len);
+    memset(next_str, 0, sizeof(char)*max_str_len);
+
+
+
+
+
+    read_result = fgets(next_str, max_str_len, F);
+    remove_nl(next_str);
+    memcpy(curr_str, next_str, sizeof(char)*max_str_len);
+    while(!feof(F))
+    {
+        if(read_result == NULL)
+        {
+            break;
+        }
+
+        if ( strcmp(curr_str, next_str) == 0)
+        {
+            curr_cnt++;
+        }
+        else
+        {
+
+            idx = find_min(cnt, top_n);
+            if(cnt[idx] < curr_cnt)
+            {
+                cnt[idx] = curr_cnt;
+                memcpy(buf[idx], curr_str, sizeof(char)*max_str_len);
+            }
+            memcpy(curr_str, next_str, sizeof(char)*max_str_len);
+            curr_cnt = 1;
+        }
+
+        read_result = fgets(next_str, max_str_len, F);
+        remove_nl(next_str);
+        next_cnt = 1;
+    }
+
+    for (i = 0; i < top_n; i++)
+    {
+        printf("%2i - %s - %2i\n", i, buf[i], cnt[i]);
+    }
+
+    free(cnt);
+    free(curr_str);
+    fclose(F);
+    return 1;
+}
+
+//****************************************************************************
+//****************************************************************************
+
+size_t find_min(size_t * cnt, size_t size)
+{
+    if (cnt == NULL || size == 0)
+    {
+        perror("find_min: Invalid parameters\n");
+        return size + 1;
+    }
+
+    size_t val = cnt[0];
+    size_t idx = 0;
+    size_t i = 0;
+
+    for(i = 1; i < size; i++)
+    {
+        if (cnt[i] < val)
+        {
+            val = cnt[i];
+            idx = i;
+        }
+    }
+    return idx;
+}
 
 //****************************************************************************
 //****************************************************************************

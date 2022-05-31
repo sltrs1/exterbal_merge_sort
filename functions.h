@@ -20,4 +20,11 @@ void swap_strings(char ** str1_ptr, char ** str2_ptr);
 // Выполнить слияние временых файлов
 size_t merge(size_t max_str_len, size_t * file_counter);
 
+// Поиск и печать ТОП-N слов в файле
+size_t find_top_n(char ** buf, size_t top_n, size_t max_str_len, size_t * file_counter);
+
+// Ищет счетчик с наименьшим значением
+size_t find_min(size_t * cnt, size_t size);
+
+
 #endif // FUNCTIONS_H

@@ -12,6 +12,10 @@
 // на небольшие части, каждая из которых будет отсортировна,
 // а затем будет выполнено слияние получившихся файлов.
 // Затем в получившемся файле будут найденты требуемые слова.
+// Для тестирования были созданы файлы с входными данными
+// input_words_100k.txt и input_numbers_100k.txt,
+// а так же файлы, содержащие требуемый результат
+// input_words_100k_answer.txt и input_numbers_100k_answer.txt.
 
 
 #include <errno.h>
@@ -34,7 +38,6 @@ int main(int argc, char ** argv)
 
     FILE * F = NULL; // Фйал, откуда считываются данные.
     char ** buf; // Буфер, в котором хранятся данные
-    size_t cnt[BUF_SIZE]; // Счетчик для каждого элемента буфера, сколько раз он встречен в файле
     size_t lower_cnt = 0;
     size_t upper_cnt = 0;
     char name1[FILENAME_LEN];
@@ -73,7 +76,6 @@ int main(int argc, char ** argv)
         buf[i] = (char*)malloc(sizeof(char)*MAX_STR_LEN);
         memset(buf[i], 0, sizeof(char)*MAX_STR_LEN);
     }
-    memset(cnt, 0, sizeof(size_t)*BUF_SIZE);
     memset(name1, 0, sizeof(char)*FILENAME_LEN);
     memset(name2, 0, sizeof(char)*FILENAME_LEN);
 
@@ -85,24 +87,15 @@ int main(int argc, char ** argv)
     {
         if (get_next(F, buf, BUF_SIZE, MAX_STR_LEN, &upper_cnt) == 0)
         {
-            printf("Over\n");
             break;
         }
-        printf("%u\n", upper_cnt);
     }
 
-    /*
-   FILE * D = NULL;
-
-   D = fopen("tmp.txt", "w");
-   fprintf(D, "tmp\n");
-   fclose(D);
-
-   D = fopen("tmp2.txt", "w");
-   fprintf(D, "tmp\n");
-   fclose(D);
-    */
+    // Выполняем слияние и получаем отсортированный файл
     merge(MAX_STR_LEN, &upper_cnt);
+
+    // Ищем ТОП-N слов и выводим их на печать
+    find_top_n(buf, TOP_N, MAX_STR_LEN, &upper_cnt);
 
 
 
